@@ -2,6 +2,8 @@
 
 A professional bash utility script that automatically detects git branches and remotes, calculates missing commits, and pushes them incrementally to keep all remotes synchronized. This tool is designed for developers who work with multiple remotes and need to ensure their commits are consistently propagated across all platforms.
 
+**Primary Repository:** [https://codeberg.org/theprivatehomelabber/commitledger.git](https://codeberg.org/theprivatehomelabber/commitledger.git)
+
 ## Table of Contents
 
 - [Overview](#overview)
@@ -24,6 +26,8 @@ A professional bash utility script that automatically detects git branches and r
 ## Overview
 
 CommitsLedger is a sophisticated git synchronization utility that addresses the common challenge of maintaining consistency across multiple git remotes. Whether you're working with origin, upstream, GitHub, GitLab, Bitbucket, or any combination of remotes, this tool ensures that your commits are propagated efficiently and safely.
+
+The primary repository is hosted on Codeberg: [https://codeberg.org/theprivatehomelabber/commitledger.git](https://codeberg.org/theprivatehomelabber/commitledger.git)
 
 The tool provides enterprise-grade features including dry-run mode, comprehensive logging, error handling, and security validation. It's designed to be both powerful enough for complex workflows and simple enough for everyday use.
 
@@ -65,9 +69,9 @@ The tool provides enterprise-grade features including dry-run mode, comprehensiv
 
 1. **Download the script**:
    ```bash
-   wget https://raw.githubusercontent.com/your-repo/commitsledger/commitsledger.sh
+   wget https://codeberg.org/theprivatehomelabber/commitledger/raw/branch/main/commitsledger.sh
    # or
-   curl -O https://raw.githubusercontent.com/your-repo/commitsledger/commitsledger.sh
+   curl -O https://codeberg.org/theprivatehomelabber/commitledger/raw/branch/main/commitsledger.sh
    ```
 
 2. **Make the script executable**:
@@ -395,7 +399,7 @@ jobs:
         fetch-depth: 0
     - name: Setup CommitsLedger
       run: |
-        wget https://raw.githubusercontent.com/your-repo/commitsledger/commitsledger.sh
+        wget https://codeberg.org/theprivatehomelabber/commitledger/raw/branch/main/commitsledger.sh
         chmod +x commitsledger.sh
     - name: Sync All Remotes
       run: |
