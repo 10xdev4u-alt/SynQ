@@ -308,6 +308,16 @@ check_git_status() {
     fi
 }
 
+# Function to check git stash status
+check_git_stash_status() {
+    local stash_count=$(git stash list 2>/dev/null | wc -l)
+    if [ "$stash_count" -gt 0 ]; then
+        log_message "Found $stash_count stashed changes in the repository"
+    else
+        log_message "No stashed changes in the repository"
+    fi
+}
+
 # Function to validate git installation
 validate_git_installation() {
     if ! command -v git &> /dev/null; then
