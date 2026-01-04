@@ -138,6 +138,14 @@ validate_remote() {
     return 0
 }
 
+# Function to handle push errors
+handle_push_error() {
+    local remote="$1"
+    local commit_hash="$2"
+    log_message "ERROR: Failed to push ${commit_hash:0:7} to $remote"
+    echo "Error pushing to $remote. Stopping operations for this remote."
+}
+
 # Parse command line arguments
 parse_arguments "$@"
 
@@ -219,7 +227,10 @@ for REMOTE in $(git remote); do
         echo "[$CURRENT/$COUNT] Pushing ${commit_hash:0:7} to $REMOTE... ($COMMIT_MESSAGE)"
         
         if [ "$DRY_RUN" = false ]; then
-            git push "$REMOTE" "$commit_hash":refs/heads/"$CURRENT_BRANCH"
+            if ! git push "$REMOTE" "$commit_hash":refs/heads/"$CURRENT_BRANCH" 2>/dev/null; then
+                handle_push_error "$REMOTE" "$commit_hash"
+                break
+            fi
         else
             log_message "DRY RUN: Would push ${commit_hash:0:7} to $REMOTE"
         fi
