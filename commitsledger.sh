@@ -220,6 +220,31 @@ validate_permissions() {
     fi
 }
 
+# Function to update configuration
+update_config() {
+    local key="$1"
+    local value="$2"
+    
+    # Update the configuration variable
+    case "$key" in
+        "DRY_RUN")
+            DRY_RUN="$value"
+            ;;
+        "LOG_FILE")
+            LOG_FILE="$value"
+            ;;
+        "VERBOSE")
+            VERBOSE="$value"
+            ;;
+        "PUSH_DELAY")
+            PUSH_DELAY="$value"
+            ;;
+        *)
+            log_message "Unknown configuration key: $key"
+            ;;
+    esac
+}
+
 # Parse command line arguments
 parse_arguments "$@"
 
