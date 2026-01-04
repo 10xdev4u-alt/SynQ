@@ -258,6 +258,19 @@ display_progress() {
     printf "] %d%% (%d/%d)" "$percentage" "$current" "$total"
 }
 
+# Function to display detailed progress
+display_detailed_progress() {
+    local current="$1"
+    local total="$2"
+    local remote="$3"
+    local operation="$4"
+    
+    local percentage=$((current * 100 / total))
+    local timestamp=$(date '+%H:%M:%S')
+    
+    printf "\r[%s] %s: %d/%d (%d%%) - Remote: %s" "$timestamp" "$operation" "$current" "$total" "$percentage" "$remote"
+}
+
 # Function to cleanup temporary files
 cleanup() {
     log_message "Performing cleanup operations"
