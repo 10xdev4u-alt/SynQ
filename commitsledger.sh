@@ -357,6 +357,13 @@ validate_git_hooks() {
     fi
 }
 
+# Function to create a version info function
+print_version() {
+    echo "CommitsLedger v1.0.0"
+    echo "Enhanced Git Synchronization Utility"
+    echo "Build date: $(date)"
+}
+
 # Parse command line arguments
 parse_arguments "$@"
 
