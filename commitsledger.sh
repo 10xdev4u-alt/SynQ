@@ -212,6 +212,14 @@ validate_git_installation() {
     log_message "Git version: $git_version"
 }
 
+# Function to validate permissions
+validate_permissions() {
+    if [ ! -r . ] || [ ! -w . ]; then
+        log_message "ERROR: Insufficient permissions for current directory"
+        exit 1
+    fi
+}
+
 # Parse command line arguments
 parse_arguments "$@"
 
@@ -223,6 +231,9 @@ trap cleanup EXIT
 
 # Validate git installation
 validate_git_installation
+
+# Validate permissions
+validate_permissions
 
 # Validate git repository
 validate_git_repo
