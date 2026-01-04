@@ -439,6 +439,27 @@ get_git_stats() {
     log_message "Total remotes: $remote_count"
 }
 
+# Function to get detailed git statistics
+get_detailed_git_stats() {
+    # Count commits per branch
+    for branch in $(git branch -r | grep -v '\->' | sed 's/origin\///'); do
+        local branch_commits=$(git rev-list --count "origin/$branch" 2>/dev/null)
+        log_message "Branch $branch: $branch_commits commits"
+    done
+    
+    # Count tags
+    local tag_count=$(git tag | wc -l)
+    log_message "Total tags: $tag_count"
+    
+    # Count contributors
+    local contributor_count=$(git shortlog -s -n | wc -l)
+    log_message "Total contributors: $contributor_count"
+    
+    # Repository size
+    local repo_size=$(du -sh . 2>/dev/null | cut -f1)
+    log_message "Repository size: $repo_size"
+}
+
 # Function to create a summary report
 create_summary_report() {
     local report_file="$HOME/.commitsledger_summary_$(date +%Y%m%d_%H%M%S).txt"
