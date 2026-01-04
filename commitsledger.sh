@@ -324,6 +324,15 @@ validate_git_auth() {
     return 0
 }
 
+# Function to set git configuration
+set_git_config() {
+    # Set git configuration options for the operation
+    git config push.default simple
+    git config core.preloadindex true
+    git config core.fscache true
+    log_message "Git configuration set for optimal performance"
+}
+
 # Parse command line arguments
 parse_arguments "$@"
 
@@ -350,6 +359,9 @@ validate_network
 
 # Validate git authentication
 validate_git_auth
+
+# Set git configuration
+set_git_config
 
 # Validate git repository
 validate_git_repo
