@@ -31,6 +31,20 @@ usage() {
     echo "  $0 --verbose --log /tmp/commitsledger.log  # Verbose logging"
 }
 
+# Function to log messages
+log_message() {
+    local message="$1"
+    local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+    
+    if [ "$VERBOSE" = true ]; then
+        echo "[$timestamp] $message" >&2
+    fi
+    
+    if [ -n "$LOG_FILE" ]; then
+        echo "[$timestamp] $message" >> "$LOG_FILE"
+    fi
+}
+
 # Function to parse command line arguments
 parse_arguments() {
     while [[ $# -gt 0 ]]; do
@@ -67,17 +81,17 @@ parse_arguments() {
 # Function to load configuration from file
 load_config() {
     if [ -f "$CONFIG_FILE" ]; then
-        echo "Loading configuration from $CONFIG_FILE" >&2
+        log_message "Loading configuration from $CONFIG_FILE"
         source "$CONFIG_FILE"
     else
-        echo "Configuration file $CONFIG_FILE not found, using defaults" >&2
+        log_message "Configuration file $CONFIG_FILE not found, using defaults"
     fi
 }
 
 # Function to validate git repository
 validate_git_repo() {
     if [ ! -d .git ] && ! git rev-parse --git-dir > /dev/null 2>&1; then
-        echo "ERROR: This directory is not a git repository." >&2
+        log_message "ERROR: This directory is not a git repository."
         exit 1
     fi
 }
@@ -86,7 +100,7 @@ validate_git_repo() {
 get_current_branch() {
     local branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
     if [ -z "$branch" ]; then
-        echo "ERROR: Unable to determine current branch." >&2
+        log_message "ERROR: Unable to determine current branch."
         exit 1
     fi
     echo "$branch"
@@ -103,6 +117,9 @@ validate_git_repo
 
 # Get current branch
 CURRENT_BRANCH=$(get_current_branch)
+
+# Log start
+log_message "Starting commitsledger synchronization for branch: $CURRENT_BRANCH"
 
 # Display mode information
 if [ "$DRY_RUN" = true ]; then
@@ -161,7 +178,7 @@ for REMOTE in $(git remote); do
         if [ "$DRY_RUN" = false ]; then
             git push "$REMOTE" "$commit_hash":refs/heads/"$CURRENT_BRANCH"
         else
-            echo "DRY RUN: Would push ${commit_hash:0:7} to $REMOTE"
+            log_message "DRY RUN: Would push ${commit_hash:0:7} to $REMOTE"
         fi
         
         ((CURRENT++))
@@ -179,6 +196,8 @@ done
 echo ""
 if [ "$DRY_RUN" = false ]; then
     echo "ALL REMOTES UPDATED SUCCESSFULLY!"
+    log_message "All remotes updated successfully"
 else
     echo "DRY RUN COMPLETED - No changes made to remotes"
+    log_message "Dry run completed successfully"
 fi
