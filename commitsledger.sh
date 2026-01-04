@@ -285,6 +285,20 @@ create_summary_report() {
     log_message "Summary report created at $report_file"
 }
 
+# Function to check available disk space
+check_disk_space() {
+    local required_space=1000000  # 1MB in bytes
+    local available_space=$(df . | tail -1 | awk '{print $4}')
+    
+    if [ "$available_space" -lt "$required_space" ]; then
+        log_message "WARNING: Insufficient disk space. Available: ${available_space}KB, Required: ${required_space}KB"
+        return 1
+    fi
+    
+    log_message "Sufficient disk space available: ${available_space}KB"
+    return 0
+}
+
 # Parse command line arguments
 parse_arguments "$@"
 
@@ -299,6 +313,9 @@ validate_git_installation
 
 # Validate permissions
 validate_permissions
+
+# Check disk space
+check_disk_space
 
 # Validate network connectivity
 validate_network
