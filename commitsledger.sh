@@ -191,6 +191,15 @@ cleanup() {
     # For example, remove temporary files if any were created
 }
 
+# Function to check git status
+check_git_status() {
+    if ! git status --porcelain 2>/dev/null | grep -q '^[^?].'; then
+        log_message "No changes to commit in the repository"
+    else
+        log_message "Uncommitted changes detected in the repository"
+    fi
+}
+
 # Parse command line arguments
 parse_arguments "$@"
 
@@ -202,6 +211,9 @@ trap cleanup EXIT
 
 # Validate git repository
 validate_git_repo
+
+# Check git status before operations
+check_git_status
 
 # Create backup before making changes
 if [ "$DRY_RUN" = false ]; then
