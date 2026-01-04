@@ -106,6 +106,16 @@ get_current_branch() {
     echo "$branch"
 }
 
+# Function to validate git connectivity
+validate_git_connectivity() {
+    local remote="$1"
+    if ! git ls-remote "$remote" > /dev/null 2>&1; then
+        log_message "ERROR: Cannot connect to remote '$remote'. Check authentication and network."
+        return 1
+    fi
+    return 0
+}
+
 # Parse command line arguments
 parse_arguments "$@"
 
@@ -137,6 +147,12 @@ echo "------------------------------------------"
 for REMOTE in $(git remote); do
     echo ""
     echo "CONNECTING TO REMOTE: [$REMOTE]..."
+    
+    # Validate connectivity to remote
+    if ! validate_git_connectivity "$REMOTE"; then
+        echo "Skipping remote '$REMOTE' due to connectivity issues."
+        continue
+    fi
     
     # Fetch latest data so we know the truth
     if ! git fetch "$REMOTE" > /dev/null 2>&1; then
