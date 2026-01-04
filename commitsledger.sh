@@ -153,6 +153,19 @@ sanitize_input() {
     echo "$input" | sed 's/[^a-zA-Z0-9_\-@:.\/]//g'
 }
 
+# Function to backup current state
+create_backup() {
+    local backup_dir="$HOME/.commitsledger_backups"
+    mkdir -p "$backup_dir"
+    local backup_file="$backup_dir/backup_$(date +%Y%m%d_%H%M%S).tar.gz"
+    
+    # Create a backup of the current git repository state
+    if [ -d .git ]; then
+        tar -czf "$backup_file" .git 2>/dev/null
+        log_message "Backup created at $backup_file"
+    fi
+}
+
 # Parse command line arguments
 parse_arguments "$@"
 
@@ -161,6 +174,11 @@ load_config
 
 # Validate git repository
 validate_git_repo
+
+# Create backup before making changes
+if [ "$DRY_RUN" = false ]; then
+    create_backup
+fi
 
 # Get current branch
 CURRENT_BRANCH=$(get_current_branch)
