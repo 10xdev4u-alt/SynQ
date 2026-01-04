@@ -200,6 +200,18 @@ check_git_status() {
     fi
 }
 
+# Function to validate git installation
+validate_git_installation() {
+    if ! command -v git &> /dev/null; then
+        log_message "ERROR: Git is not installed or not in PATH"
+        exit 1
+    fi
+    
+    # Check git version
+    local git_version=$(git --version | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
+    log_message "Git version: $git_version"
+}
+
 # Parse command line arguments
 parse_arguments "$@"
 
@@ -208,6 +220,9 @@ load_config
 
 # Set up trap for cleanup on exit
 trap cleanup EXIT
+
+# Validate git installation
+validate_git_installation
 
 # Validate git repository
 validate_git_repo
