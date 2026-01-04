@@ -150,7 +150,7 @@ handle_push_error() {
 sanitize_input() {
     local input="$1"
     # Remove potentially dangerous characters
-    echo "$input" | sed 's/[^a-zA-Z0-9_\-@:.\/]//g'
+    echo "$input" | sed 's/[^a-zA-Z0-9_@:.\/-]//g'
 }
 
 # Function to backup current state
@@ -308,7 +308,8 @@ check_system_resources() {
     log_message "System resources - CPU usage: ${cpu_usage:-N/A}%"
     
     # Check if memory usage is too high
-    if (( $(echo "$memory_usage > 90" | bc -l) )); then
+    # Use awk instead of bc for better portability
+    if awk -v mem="$memory_usage" 'BEGIN { exit !(mem > 90) }'; then
         log_message "WARNING: High memory usage detected (${memory_usage}%)"
     fi
 }
