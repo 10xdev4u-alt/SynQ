@@ -184,11 +184,21 @@ display_progress() {
     printf "] %d%% (%d/%d)" "$percentage" "$current" "$total"
 }
 
+# Function to cleanup temporary files
+cleanup() {
+    log_message "Performing cleanup operations"
+    # Add any cleanup operations here
+    # For example, remove temporary files if any were created
+}
+
 # Parse command line arguments
 parse_arguments "$@"
 
 # Load configuration
 load_config
+
+# Set up trap for cleanup on exit
+trap cleanup EXIT
 
 # Validate git repository
 validate_git_repo
