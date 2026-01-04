@@ -116,6 +116,12 @@ validate_git_connectivity() {
     return 0
 }
 
+# Function to get commit count
+get_commit_count() {
+    local commits="$1"
+    echo "$commits" | sed '/^$/d' | wc -l | xargs
+}
+
 # Parse command line arguments
 parse_arguments "$@"
 
@@ -173,7 +179,7 @@ for REMOTE in $(git remote); do
     fi
 
     # Count them
-    COUNT=$(echo "$MISSING_COMMITS" | sed '/^$/d' | wc -l | xargs)
+    COUNT=$(get_commit_count "$MISSING_COMMITS")
 
     if [ "$COUNT" -eq "0" ]; then
         echo "Remote '$REMOTE' is already up to date."
