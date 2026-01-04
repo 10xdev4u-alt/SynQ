@@ -397,6 +397,31 @@ validate_network() {
     return 0
 }
 
+# Function to validate specific remote connectivity
+validate_remote_connectivity() {
+    local remote="$1"
+    local remote_url=$(git remote get-url "$remote" 2>/dev/null)
+    
+    if [ -z "$remote_url" ]; then
+        log_message "ERROR: Remote '$remote' does not exist"
+        return 1
+    fi
+    
+    # Extract hostname from URL
+    local hostname=$(echo "$remote_url" | sed -n 's|.*://\([^/]*\)/.*|\1|p' | sed 's/.*@//')
+    if [ -z "$hostname" ]; then
+        # Handle SSH URLs
+        hostname=$(echo "$remote_url" | sed -n 's/.*@\(.*\):.*/\1/p')
+    fi
+    
+    if [ -n "$hostname" ] && ! ping -c 1 "$hostname" &> /dev/null; then
+        log_message "WARNING: Cannot reach remote host $hostname for '$remote'"
+        return 1
+    fi
+    
+    return 0
+}
+
 # Function to get git statistics
 get_git_stats() {
     local stats_file="$HOME/.commitsledger_stats"
