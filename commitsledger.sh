@@ -109,8 +109,15 @@ get_current_branch() {
 # Function to validate git connectivity
 validate_git_connectivity() {
     local remote="$1"
+    local remote_url=$(git remote get-url "$remote" 2>/dev/null)
+    
+    if [ -z "$remote_url" ]; then
+        log_message "ERROR: Remote '$remote' does not exist."
+        return 1
+    fi
+    
     if ! git ls-remote "$remote" > /dev/null 2>&1; then
-        log_message "ERROR: Cannot connect to remote '$remote'. Check authentication and network."
+        log_message "ERROR: Cannot connect to remote '$remote' ($remote_url). Check authentication and network."
         return 1
     fi
     return 0
