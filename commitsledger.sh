@@ -212,6 +212,14 @@ validate_git_installation() {
     # Check git version
     local git_version=$(git --version | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
     log_message "Git version: $git_version"
+    
+    # Verify git configuration
+    if ! git config --get user.name > /dev/null 2>&1; then
+        log_message "WARNING: Git user.name is not configured"
+    fi
+    if ! git config --get user.email > /dev/null 2>&1; then
+        log_message "WARNING: Git user.email is not configured"
+    fi
 }
 
 # Function to validate permissions
