@@ -313,6 +313,17 @@ check_system_resources() {
     fi
 }
 
+# Function to validate git authentication
+validate_git_auth() {
+    for remote in $(git remote); do
+        if ! git ls-remote "$remote" HEAD &>/dev/null; then
+            log_message "WARNING: Authentication failed for remote '$remote'"
+            return 1
+        fi
+    done
+    return 0
+}
+
 # Parse command line arguments
 parse_arguments "$@"
 
@@ -336,6 +347,9 @@ check_disk_space
 
 # Validate network connectivity
 validate_network
+
+# Validate git authentication
+validate_git_auth
 
 # Validate git repository
 validate_git_repo
