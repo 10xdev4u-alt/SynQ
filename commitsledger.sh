@@ -128,6 +128,16 @@ get_commit_message() {
     git log --format=%s -n 1 "$commit_hash" 2>/dev/null | cut -c1-50
 }
 
+# Function to validate remote name
+validate_remote() {
+    local remote="$1"
+    if ! git remote | grep -q "^$remote$"; then
+        log_message "ERROR: Remote '$remote' does not exist."
+        return 1
+    fi
+    return 0
+}
+
 # Parse command line arguments
 parse_arguments "$@"
 
@@ -157,6 +167,11 @@ echo "------------------------------------------"
 
 # Loop through every remote you have (Origin, Gitlab, Heroku, etc.)
 for REMOTE in $(git remote); do
+    # Validate remote name
+    if ! validate_remote "$REMOTE"; then
+        continue
+    fi
+    
     echo ""
     echo "CONNECTING TO REMOTE: [$REMOTE]..."
     
