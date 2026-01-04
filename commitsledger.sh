@@ -562,6 +562,26 @@ check_system_resources() {
     fi
 }
 
+# Function to get detailed system resources
+get_detailed_system_resources() {
+    # Memory details
+    local mem_total=$(free -h | grep Mem | awk '{print $2}')
+    local mem_used=$(free -h | grep Mem | awk '{print $3}')
+    local mem_available=$(free -h | grep Mem | awk '{print $7}')
+    log_message "Memory - Total: $mem_total, Used: $mem_used, Available: $mem_available"
+    
+    # Disk usage
+    local disk_usage=$(df -h . | tail -1 | awk '{print $5}' | sed 's/%//')
+    local disk_total=$(df -h . | tail -1 | awk '{print $2}')
+    local disk_used=$(df -h . | tail -1 | awk '{print $3}')
+    log_message "Disk - Usage: ${disk_usage}%, Total: $disk_total, Used: $disk_used"
+    
+    # Check if system resources are adequate
+    if [ "$disk_usage" -gt 90 ]; then
+        log_message "WARNING: High disk usage detected (${disk_usage}%)"
+    fi
+}
+
 # Function to validate git authentication
 validate_git_auth() {
     for remote in $(git remote); do
