@@ -171,6 +171,31 @@ handle_push_error() {
     echo "Error pushing to $remote. Stopping operations for this remote."
 }
 
+# Function to retry failed operations
+retry_operation() {
+    local operation="$1"
+    local max_retries="${2:-3}"
+    local retry_count=1
+    
+    while [ $retry_count -le $max_retries ]; do
+        log_message "Attempt $retry_count of $max_retries for operation: $operation"
+        
+        if eval "$operation"; then
+            log_message "Operation succeeded on attempt $retry_count"
+            return 0
+        else
+            log_message "Operation failed on attempt $retry_count"
+            if [ $retry_count -lt $max_retries ]; then
+                sleep $((retry_count * 2))  # Exponential backoff
+            fi
+        fi
+        ((retry_count++))
+    done
+    
+    log_message "Operation failed after $max_retries attempts"
+    return 1
+}
+
 # Function to sanitize input
 sanitize_input() {
     local input="$1"
