@@ -31,20 +31,6 @@ usage() {
     echo "  $0 --verbose --log /tmp/commitsledger.log  # Verbose logging"
 }
 
-# Function to log messages
-log_message() {
-    local message="$1"
-    local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
-    
-    if [ "$VERBOSE" = true ]; then
-        echo "[$timestamp] $message" >&2
-    fi
-    
-    if [ -n "$LOG_FILE" ]; then
-        echo "[$timestamp] $MESSAGE" >> "$LOG_FILE"
-    fi
-}
-
 # Function to parse command line arguments
 parse_arguments() {
     while [[ $# -gt 0 ]]; do
@@ -81,17 +67,17 @@ parse_arguments() {
 # Function to load configuration from file
 load_config() {
     if [ -f "$CONFIG_FILE" ]; then
-        log_message "Loading configuration from $CONFIG_FILE"
+        echo "Loading configuration from $CONFIG_FILE" >&2
         source "$CONFIG_FILE"
     else
-        log_message "Configuration file $CONFIG_FILE not found, using defaults"
+        echo "Configuration file $CONFIG_FILE not found, using defaults" >&2
     fi
 }
 
 # Function to validate git repository
 validate_git_repo() {
     if [ ! -d .git ] && ! git rev-parse --git-dir > /dev/null 2>&1; then
-        log_message "ERROR: This directory is not a git repository."
+        echo "ERROR: This directory is not a git repository." >&2
         exit 1
     fi
 }
@@ -100,20 +86,10 @@ validate_git_repo() {
 get_current_branch() {
     local branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
     if [ -z "$branch" ]; then
-        log_message "ERROR: Unable to determine current branch."
+        echo "ERROR: Unable to determine current branch." >&2
         exit 1
     fi
     echo "$branch"
-}
-
-# Function to validate git connectivity
-validate_git_connectivity() {
-    local remote="$1"
-    if ! git ls-remote "$remote" > /dev/null 2>&1; then
-        log_message "ERROR: Cannot connect to remote '$remote'. Check authentication and network."
-        return 1
-    fi
-    return 0
 }
 
 # Parse command line arguments
@@ -127,9 +103,6 @@ validate_git_repo
 
 # Get current branch
 CURRENT_BRANCH=$(get_current_branch)
-
-# Log start
-log_message "Starting commitsledger synchronization for branch: $CURRENT_BRANCH"
 
 # Display mode information
 if [ "$DRY_RUN" = true ]; then
@@ -147,12 +120,6 @@ echo "------------------------------------------"
 for REMOTE in $(git remote); do
     echo ""
     echo "CONNECTING TO REMOTE: [$REMOTE]..."
-    
-    # Validate connectivity to remote
-    if ! validate_git_connectivity "$REMOTE"; then
-        echo "Skipping remote '$REMOTE' due to connectivity issues."
-        continue
-    fi
     
     # Fetch latest data so we know the truth
     if ! git fetch "$REMOTE" > /dev/null 2>&1; then
@@ -192,15 +159,9 @@ for REMOTE in $(git remote); do
         echo "[$CURRENT/$COUNT] Pushing ${commit_hash:0:7} to $REMOTE... ($COMMIT_MESSAGE)"
         
         if [ "$DRY_RUN" = false ]; then
-            if git push "$REMOTE" "$commit_hash":refs/heads/"$CURRENT_BRANCH" 2>/dev/null; then
-                log_message "Successfully pushed ${commit_hash:0:7} to $REMOTE"
-            else
-                log_message "ERROR: Failed to push ${commit_hash:0:7} to $REMOTE"
-                echo "Error pushing to $REMOTE. Stopping operations for this remote."
-                break
-            fi
+            git push "$REMOTE" "$commit_hash":refs/heads/"$CURRENT_BRANCH"
         else
-            log_message "DRY RUN: Would push ${commit_hash:0:7} to $REMOTE"
+            echo "DRY RUN: Would push ${commit_hash:0:7} to $REMOTE"
         fi
         
         ((CURRENT++))
@@ -218,8 +179,6 @@ done
 echo ""
 if [ "$DRY_RUN" = false ]; then
     echo "ALL REMOTES UPDATED SUCCESSFULLY!"
-    log_message "All remotes updated successfully"
 else
     echo "DRY RUN COMPLETED - No changes made to remotes"
-    log_message "Dry run completed successfully"
 fi
