@@ -146,6 +146,13 @@ handle_push_error() {
     echo "Error pushing to $remote. Stopping operations for this remote."
 }
 
+# Function to sanitize input
+sanitize_input() {
+    local input="$1"
+    # Remove potentially dangerous characters
+    echo "$input" | sed 's/[^a-zA-Z0-9_\-@:.\/]//g'
+}
+
 # Parse command line arguments
 parse_arguments "$@"
 
@@ -175,6 +182,9 @@ echo "------------------------------------------"
 
 # Loop through every remote you have (Origin, Gitlab, Heroku, etc.)
 for REMOTE in $(git remote); do
+    # Sanitize remote name
+    REMOTE=$(sanitize_input "$REMOTE")
+    
     # Validate remote name
     if ! validate_remote "$REMOTE"; then
         continue
