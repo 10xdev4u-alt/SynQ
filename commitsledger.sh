@@ -254,6 +254,23 @@ validate_network() {
     return 0
 }
 
+# Function to get git statistics
+get_git_stats() {
+    local stats_file="$HOME/.commitsledger_stats"
+    
+    # Count total commits in the repository
+    local total_commits=$(git rev-list --count HEAD 2>/dev/null || echo "0")
+    log_message "Total commits in repository: $total_commits"
+    
+    # Count branches
+    local branch_count=$(git branch -a | wc -l)
+    log_message "Total branches: $branch_count"
+    
+    # Count remotes
+    local remote_count=$(git remote | wc -l)
+    log_message "Total remotes: $remote_count"
+}
+
 # Parse command line arguments
 parse_arguments "$@"
 
@@ -274,6 +291,9 @@ validate_network
 
 # Validate git repository
 validate_git_repo
+
+# Get git statistics
+get_git_stats
 
 # Check git status before operations
 check_git_status
