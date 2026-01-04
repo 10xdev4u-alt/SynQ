@@ -229,6 +229,17 @@ create_backup() {
     fi
 }
 
+# Function to create selective backup
+create_selective_backup() {
+    local backup_dir="$HOME/.commitsledger_selective_backups"
+    mkdir -p "$backup_dir"
+    local backup_file="$backup_dir/selective_backup_$(date +%Y%m%d_%H%M%S).tar.gz"
+    
+    # Backup only specific important files
+    tar -czf "$backup_file" .git/HEAD .git/refs .git/config 2>/dev/null || true
+    log_message "Selective backup created at $backup_file"
+}
+
 # Function to display progress bar
 display_progress() {
     local current="$1"
