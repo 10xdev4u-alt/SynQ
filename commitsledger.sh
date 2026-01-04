@@ -657,6 +657,21 @@ validate_git_credentials() {
     done
 }
 
+# Function to check credential helper
+check_credential_helper() {
+    local helper=$(git config --get credential.helper 2>/dev/null)
+    if [ -z "$helper" ]; then
+        log_message "INFO: No credential helper configured. Consider setting one for better security."
+    else
+        log_message "INFO: Credential helper configured: $helper"
+    fi
+    
+    # Check if using cache or store helpers (less secure)
+    if [[ "$helper" =~ cache|store ]]; then
+        log_message "WARNING: Using credential cache/store, which may be less secure."
+    fi
+}
+
 # Function to validate git hooks
 validate_git_hooks() {
     local hooks_dir=".git/hooks"
