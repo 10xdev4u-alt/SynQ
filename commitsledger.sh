@@ -271,6 +271,20 @@ get_git_stats() {
     log_message "Total remotes: $remote_count"
 }
 
+# Function to create a summary report
+create_summary_report() {
+    local report_file="$HOME/.commitsledger_summary_$(date +%Y%m%d_%H%M%S).txt"
+    
+    echo "CommitsLedger Summary Report" > "$report_file"
+    echo "Generated on: $(date)" >> "$report_file"
+    echo "Branch: $CURRENT_BRANCH" >> "$report_file"
+    echo "Operation mode: $(if [ "$DRY_RUN" = true ]; then echo "DRY RUN"; else echo "NORMAL"; fi)" >> "$report_file"
+    echo "Log file: $LOG_FILE" >> "$report_file"
+    echo "Verbose mode: $VERBOSE" >> "$report_file"
+    
+    log_message "Summary report created at $report_file"
+}
+
 # Parse command line arguments
 parse_arguments "$@"
 
@@ -411,3 +425,6 @@ else
     echo "DRY RUN COMPLETED - No changes made to remotes"
     log_message "Dry run completed successfully"
 fi
+
+# Create summary report
+create_summary_report
