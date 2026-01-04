@@ -474,6 +474,41 @@ create_summary_report() {
     log_message "Summary report created at $report_file"
 }
 
+# Function to create a detailed summary report
+create_detailed_summary_report() {
+    local report_file="$HOME/.commitsledger_detailed_summary_$(date +%Y%m%d_%H%M%S).txt"
+    
+    echo "CommitsLedger Detailed Summary Report" > "$report_file"
+    echo "Generated on: $(date)" >> "$report_file"
+    echo "========================================" >> "$report_file"
+    echo "Branch: $CURRENT_BRANCH" >> "$report_file"
+    echo "Operation mode: $(if [ "$DRY_RUN" = true ]; then echo "DRY RUN"; else echo "NORMAL"; fi)" >> "$report_file"
+    echo "Log file: $LOG_FILE" >> "$report_file"
+    echo "Verbose mode: $VERBOSE" >> "$report_file"
+    echo "Push delay: $PUSH_DELAY seconds" >> "$report_file"
+    echo "" >> "$report_file"
+    
+    # Add git statistics to the report
+    echo "Git Statistics:" >> "$report_file"
+    local total_commits=$(git rev-list --count HEAD 2>/dev/null || echo "0")
+    echo "  Total commits: $total_commits" >> "$report_file"
+    local branch_count=$(git branch -a | wc -l)
+    echo "  Total branches: $branch_count" >> "$report_file"
+    local remote_count=$(git remote | wc -l)
+    echo "  Total remotes: $remote_count" >> "$report_file"
+    echo "" >> "$report_file"
+    
+    # Add remote sync details
+    echo "Remote Synchronization Details:" >> "$report_file"
+    for remote in $(git remote); do
+        echo "  Remote: $remote" >> "$report_file"
+        local remote_branches=$(git branch -r | grep "$remote/" | wc -l)
+        echo "    Branches: $remote_branches" >> "$report_file"
+    done
+    
+    log_message "Detailed summary report created at $report_file"
+}
+
 # Function to check available disk space
 check_disk_space() {
     local required_space=1000000  # 1MB in bytes
