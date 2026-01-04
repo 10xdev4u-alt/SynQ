@@ -276,6 +276,27 @@ cleanup() {
     log_message "Performing cleanup operations"
     # Add any cleanup operations here
     # For example, remove temporary files if any were created
+    
+    # Clean up any temporary files created during operations
+    local temp_files=$(find /tmp -name "commitsledger_*" -type f 2>/dev/null)
+    if [ -n "$temp_files" ]; then
+        log_message "Removing temporary files"
+        rm -f $temp_files
+    fi
+}
+
+# Function for enhanced cleanup
+enhanced_cleanup() {
+    log_message "Performing enhanced cleanup operations"
+    
+    # Cleanup temporary files
+    find /tmp -name "commitsledger_*" -mindepth 1 -delete 2>/dev/null || true
+    
+    # Cleanup old backup files (older than 7 days)
+    find "$HOME/.commitsledger_backups" -name "*.tar.gz" -mtime +7 -delete 2>/dev/null || true
+    
+    # Cleanup old log files if they exist
+    find "$HOME/.commitsledger_logs" -name "*.log" -mtime +30 -delete 2>/dev/null || true
 }
 
 # Function to check git status
