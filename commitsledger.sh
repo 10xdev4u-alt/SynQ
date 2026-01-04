@@ -119,7 +119,8 @@ validate_git_connectivity() {
 # Function to get commit count
 get_commit_count() {
     local commits="$1"
-    echo "$commits" | sed '/^$/d' | wc -l | xargs
+    # Use tr to remove newlines instead of xargs for better portability
+    echo "$commits" | sed '/^$/d' | wc -l | tr -d ' \t\n'
 }
 
 # Function to get commit message
