@@ -593,6 +593,31 @@ validate_git_auth() {
     return 0
 }
 
+# Function to validate git authentication with detailed feedback
+validate_git_auth_detailed() {
+    local auth_success=0
+    local auth_failed=0
+    
+    for remote in $(git remote); do
+        local remote_url=$(git remote get-url "$remote" 2>/dev/null)
+        if ! git ls-remote "$remote" HEAD &>/dev/null; then
+            log_message "Authentication failed for remote '$remote' ($remote_url)"
+            ((auth_failed++))
+        else
+            log_message "Authentication successful for remote '$remote'"
+            ((auth_success++))
+        fi
+    done
+    
+    log_message "Authentication summary: $auth_success successful, $auth_failed failed"
+    
+    if [ $auth_failed -gt 0 ]; then
+        return 1
+    fi
+    
+    return 0
+}
+
 # Function to set git configuration
 set_git_config() {
     # Set git configuration options for the operation
