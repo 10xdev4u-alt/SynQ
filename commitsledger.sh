@@ -627,6 +627,26 @@ set_git_config() {
     log_message "Git configuration set for optimal performance"
 }
 
+# Function to validate and set git configuration
+validate_and_set_git_config() {
+    # Validate current git configuration
+    local current_push_default=$(git config push.default 2>/dev/null)
+    if [ "$current_push_default" != "simple" ]; then
+        log_message "Setting push.default to simple (was: $current_push_default)"
+        git config push.default simple
+    fi
+    
+    # Set performance configurations
+    git config core.preloadindex true
+    git config core.fscache true
+    
+    # Set additional configurations that improve performance
+    git config core.precomposeunicode true  # For macOS compatibility
+    git config core.longpaths true          # Allow long file paths
+    
+    log_message "Git configuration validated and set for optimal performance"
+}
+
 # Function to validate git credentials
 validate_git_credentials() {
     for remote in $(git remote); do
