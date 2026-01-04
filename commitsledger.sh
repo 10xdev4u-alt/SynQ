@@ -131,6 +131,22 @@ get_commit_count() {
     echo $count
 }
 
+# Function to validate commit hashes
+validate_commit_hashes() {
+    local commits="$1"
+    local valid_count=0
+    
+    for commit in $commits; do
+        if git rev-parse --verify "$commit^{commit}" >/dev/null 2>&1; then
+            ((valid_count++))
+        else
+            log_message "WARNING: Invalid commit hash detected: $commit"
+        fi
+    done
+    
+    log_message "Validated $valid_count commit hashes"
+}
+
 # Function to get commit message
 get_commit_message() {
     local commit_hash="$1"
