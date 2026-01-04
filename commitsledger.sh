@@ -343,6 +343,20 @@ validate_git_credentials() {
     done
 }
 
+# Function to validate git hooks
+validate_git_hooks() {
+    local hooks_dir=".git/hooks"
+    if [ -d "$hooks_dir" ]; then
+        local hook_count=$(find "$hooks_dir" -type f -executable | wc -l)
+        log_message "Found $hook_count git hooks in repository"
+        
+        # Check for pre-push hooks which might affect our operations
+        if [ -f "$hooks_dir/pre-push" ]; then
+            log_message "WARNING: pre-push hook detected, this may affect push operations"
+        fi
+    fi
+}
+
 # Parse command line arguments
 parse_arguments "$@"
 
@@ -372,6 +386,9 @@ validate_git_auth
 
 # Validate git credentials
 validate_git_credentials
+
+# Validate git hooks
+validate_git_hooks
 
 # Set git configuration
 set_git_config
