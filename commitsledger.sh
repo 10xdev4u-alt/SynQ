@@ -333,6 +333,16 @@ set_git_config() {
     log_message "Git configuration set for optimal performance"
 }
 
+# Function to validate git credentials
+validate_git_credentials() {
+    for remote in $(git remote); do
+        local remote_url=$(git remote get-url "$remote" 2>/dev/null)
+        if [[ "$remote_url" =~ ^https://.*@.* ]]; then
+            log_message "WARNING: Credentials detected in remote URL for '$remote'. Consider using credential manager."
+        fi
+    done
+}
+
 # Parse command line arguments
 parse_arguments "$@"
 
@@ -359,6 +369,9 @@ validate_network
 
 # Validate git authentication
 validate_git_auth
+
+# Validate git credentials
+validate_git_credentials
 
 # Set git configuration
 set_git_config
