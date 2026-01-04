@@ -299,6 +299,20 @@ check_disk_space() {
     return 0
 }
 
+# Function to check system resources
+check_system_resources() {
+    local memory_usage=$(free | grep Mem | awk '{printf "%.2f", $3/$2 * 100.0}')
+    local cpu_usage=$(top -bn1 | grep "Cpu(s)" | awk '{print $2}' | sed 's/%us,//')
+    
+    log_message "System resources - Memory usage: ${memory_usage}%"
+    log_message "System resources - CPU usage: ${cpu_usage:-N/A}%"
+    
+    # Check if memory usage is too high
+    if (( $(echo "$memory_usage > 90" | bc -l) )); then
+        log_message "WARNING: High memory usage detected (${memory_usage}%)"
+    fi
+}
+
 # Parse command line arguments
 parse_arguments "$@"
 
@@ -313,6 +327,9 @@ validate_git_installation
 
 # Validate permissions
 validate_permissions
+
+# Check system resources
+check_system_resources
 
 # Check disk space
 check_disk_space
