@@ -371,6 +371,23 @@ update_config() {
     esac
 }
 
+# Function to validate configuration values
+validate_config_values() {
+    # Validate PUSH_DELAY is a positive number
+    if ! [[ "$PUSH_DELAY" =~ ^[0-9]+\.?[0-9]*$ ]] || [ "$(echo "$PUSH_DELAY <= 0" | bc -l 2>/dev/null || echo "1")" -eq 1 ]; then
+        log_message "WARNING: Invalid PUSH_DELAY value: $PUSH_DELAY, using default 0.5"
+        PUSH_DELAY=0.5
+    fi
+    
+    # Validate LOG_FILE path
+    if [ -n "$LOG_FILE" ]; then
+        local log_dir=$(dirname "$LOG_FILE")
+        if [ ! -d "$log_dir" ]; then
+            log_message "WARNING: Log directory does not exist: $log_dir"
+        fi
+    fi
+}
+
 # Function to validate network connectivity
 validate_network() {
     if ! ping -c 1 8.8.8.8 &> /dev/null; then
