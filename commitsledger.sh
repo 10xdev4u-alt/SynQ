@@ -166,6 +166,24 @@ create_backup() {
     fi
 }
 
+# Function to display progress bar
+display_progress() {
+    local current="$1"
+    local total="$2"
+    local width=50
+    local percentage=$((current * 100 / total))
+    local completed=$((width * current / total))
+    
+    printf "\rProgress: ["
+    for ((i=0; i<completed; i++)); do
+        printf "="
+    done
+    for ((i=completed; i<width; i++)); do
+        printf " "
+    done
+    printf "] %d%% (%d/%d)" "$percentage" "$current" "$total"
+}
+
 # Parse command line arguments
 parse_arguments "$@"
 
@@ -252,6 +270,10 @@ for REMOTE in $(git remote); do
         # Get commit message for display
         COMMIT_MESSAGE=$(get_commit_message "$commit_hash")
         
+        if [ "$VERBOSE" = true ]; then
+            display_progress "$CURRENT" "$COUNT"
+        fi
+        
         echo "[$CURRENT/$COUNT] Pushing ${commit_hash:0:7} to $REMOTE... ($COMMIT_MESSAGE)"
         
         if [ "$DRY_RUN" = false ]; then
@@ -269,6 +291,7 @@ for REMOTE in $(git remote); do
     done
     
     if [ "$DRY_RUN" = false ]; then
+        echo ""
         echo "'$REMOTE' is now fully synchronized!"
     else
         echo "DRY RUN: Would have synchronized '$REMOTE' completely."
