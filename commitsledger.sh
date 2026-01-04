@@ -245,6 +245,15 @@ update_config() {
     esac
 }
 
+# Function to validate network connectivity
+validate_network() {
+    if ! ping -c 1 8.8.8.8 &> /dev/null; then
+        log_message "WARNING: Network connectivity issues detected"
+        return 1
+    fi
+    return 0
+}
+
 # Parse command line arguments
 parse_arguments "$@"
 
@@ -259,6 +268,9 @@ validate_git_installation
 
 # Validate permissions
 validate_permissions
+
+# Validate network connectivity
+validate_network
 
 # Validate git repository
 validate_git_repo
