@@ -203,6 +203,19 @@ sanitize_input() {
     echo "$input" | sed 's/[^a-zA-Z0-9_@:.\/-]//g'
 }
 
+# Function to validate input length
+validate_input_length() {
+    local input="$1"
+    local max_length="${2:-1000}"
+    
+    if [ ${#input} -gt $max_length ]; then
+        log_message "ERROR: Input exceeds maximum length of $max_length characters"
+        return 1
+    fi
+    
+    return 0
+}
+
 # Function to backup current state
 create_backup() {
     local backup_dir="$HOME/.commitsledger_backups"
