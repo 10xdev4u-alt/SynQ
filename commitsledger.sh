@@ -523,6 +523,30 @@ check_disk_space() {
     return 0
 }
 
+# Function to check disk space for git operations
+check_git_disk_space() {
+    local git_dir_size=0
+    if [ -d .git ]; then
+        git_dir_size=$(du -sb .git 2>/dev/null | cut -f1)
+    fi
+    
+    # Estimate space needed for operations (10% of git directory size)
+    local estimated_space=$((git_dir_size / 10))
+    if [ $estimated_space -lt 1000000 ]; then  # Minimum 1MB
+        estimated_space=1000000
+    fi
+    
+    local available_space=$(df . | tail -1 | awk '{print $4 * 1024}')  # Convert to bytes
+    
+    if [ "$available_space" -lt "$estimated_space" ]; then
+        log_message "WARNING: Insufficient disk space for git operations. Available: ${available_space} bytes, Estimated needed: ${estimated_space} bytes"
+        return 1
+    fi
+    
+    log_message "Sufficient space for git operations: ${available_space} bytes available, estimated ${estimated_space} bytes needed"
+    return 0
+}
+
 # Function to check system resources
 check_system_resources() {
     local memory_usage=$(free | grep Mem | awk '{printf "%.2f", $3/$2 * 100.0}')
