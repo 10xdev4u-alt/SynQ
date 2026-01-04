@@ -122,6 +122,12 @@ get_commit_count() {
     echo "$commits" | sed '/^$/d' | wc -l | xargs
 }
 
+# Function to get commit message
+get_commit_message() {
+    local commit_hash="$1"
+    git log --format=%s -n 1 "$commit_hash" 2>/dev/null | cut -c1-50
+}
+
 # Parse command line arguments
 parse_arguments "$@"
 
@@ -193,7 +199,7 @@ for REMOTE in $(git remote); do
     # The Push Loop
     for commit_hash in $MISSING_COMMITS; do
         # Get commit message for display
-        COMMIT_MESSAGE=$(git log --format=%s -n 1 "$commit_hash" 2>/dev/null | cut -c1-50)
+        COMMIT_MESSAGE=$(get_commit_message "$commit_hash")
         
         echo "[$CURRENT/$COUNT] Pushing ${commit_hash:0:7} to $REMOTE... ($COMMIT_MESSAGE)"
         
